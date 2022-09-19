@@ -1,0 +1,135 @@
+import { Linking, StyleSheet, Text, TouchableOpacity, View,Image, RefreshControl } from 'react-native'
+import React, { useState } from 'react'
+import { NavigationContainer, useNavigation } from '@react-navigation/native'
+import { createStackNavigator } from '@react-navigation/stack'
+
+import HeaderHome from '../components/Home/HeaderHome';
+import Index from '../components/Home/Index'; 
+import Entypo from "react-native-vector-icons/Entypo"
+import AntDesign from "react-native-vector-icons/AntDesign"
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+  useDrawerProgress,
+} from '@react-navigation/drawer';
+import Animated from 'react-native-reanimated';
+import MyExamScreen from './MyExamScreen';
+import { Avatar } from 'react-native-image-avatars';
+import HomeScreen from './HomeScreen';
+import Help from './Help';
+import ViewCourseSubCategory from './ViewCourseSubCategory';
+
+import GetCourseScreen from './GetCourseScreen';
+  
+const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+const profileImage = "https://instagram.fbom26-2.fna.fbcdn.net/v/t51.2885-19/273464669_468712634908115_2311943651117101343_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fbom26-2.fna.fbcdn.net&_nc_cat=111&_nc_ohc=D6bFqszanKcAX_HVr4B&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AT-ppsIWd1FpRRm1KH-JUek3Jh-vuktWGyGNcIXAzXUSKg&oe=62AD1CB3&_nc_sid=8fd12b"
+function CustomDrawerContent(props) {
+  const[active,setActive] = useState(false);
+  const progress = useDrawerProgress();
+  const navigation = useNavigation();
+  const translateX = Animated.interpolateNode(progress, {
+    inputRange: [0, 1],
+    outputRange: [-100, 0],
+  });
+
+  return (
+    <DrawerContentScrollView {...props}>
+
+      <Animated.View style={{ transform: [{ translateX }]  }}>
+      <View>
+        <View style={{justifyContent:"center",marginLeft:80,marginTop:20}}>
+          <Avatar imageUrl = 'https://reactnavigation.org/img/spiro.svg'
+              size="small"
+              borderColor = "#f2f2f2" shadow/>
+          {/* <Image source={{uri: "https://reactnavigation.org/img/spiro.svg"}} style={{height:60,width:60,borderRadius:100}}/> */}
+        </View>
+            <Text style={{textAlign:"center",fontWeight:"600",color:"red",fontSize:19}}>Aaditya kumar</Text>
+     </View>
+        <DrawerItemList {...props} />
+        
+        <DrawerItem label="My Exams"  style={{marginBottom:0,padding:0}} onPress={() => navigation.navigate("MyExam")} />
+        <DrawerItem label="My Profile" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+        <DrawerItem label="Offline Test" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+        <DrawerItem label="Share and Earn $0.4" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+        <DrawerItem label={() => <Text style={{ color:(active)?"black":"white" ,fontWeight:"600" }}>Follow Us</Text>}  style={{marginBottom:0,padding:0,backgroundColor:(active)?"#f0ffff":"grey"}} onPress={() => setActive(!active)} />
+         {
+          active && 
+          <View style={{marginLeft:20}}>
+            <DrawerItem label="Facebook" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+            <DrawerItem label="Youtube" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+          </View>
+         }
+        <DrawerItem label="Logout "  style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+    </Animated.View>
+    </DrawerContentScrollView>
+  );
+}
+function DrawerLabelContext() {
+  return(
+    <View>
+      <Text style={{fontSize:20,textAlign:"center"}}>Aaditya kumar</Text>
+    </View>
+  )
+}
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
+  
+function DrawerScreen(){
+  // function refreshPage() {
+  //   window.location.reload(false);
+  // }
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    console.log("Hello2");
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
+  
+  const navigation=useNavigation();
+      return(
+        <Drawer.Navigator screenOptions={{headerTintColor:"red",drawerStyle:{
+          borderTopRightRadius:7,
+          borderBottomRightRadius:7,
+          width: '75%',
+          
+          },
+          
+        }}
+        useLegacyImplementation
+        drawerContent={(props) => <CustomDrawerContent {...props}   />}
+        
+        >
+           <Drawer.Screen component={HomeScreen} name='Home'  options={{headerTitle:(props) => <HeaderHome navigation={() => <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}/>}}/>
+          
+        </Drawer.Navigator>
+      )
+}
+
+function  DrawerContext() {
+  return(
+    <DrawerScreen/>
+  )
+}
+const DrawerScreenControl = () => {
+  return (
+    <NavigationContainer>
+        <Stack.Navigator>
+            <Stack.Screen name='root' component={DrawerContext} options={{headerShown:false}} />
+            <Stack.Screen name='MyExam' component={MyExamScreen} options={{headerShown:false}} />
+            <Stack.Screen name='Help' component={Help} options={{headerShown:false}} />
+            <Stack.Screen name='ViewCourse' component={ViewCourseSubCategory} options={{headerShown:false}} />
+            <Stack.Screen name='GetCourseScreen' component={GetCourseScreen} options={{headerShown:false}} />
+        </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+
+export default DrawerScreenControl
+
+const styles = StyleSheet.create({})
