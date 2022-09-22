@@ -1,12 +1,13 @@
 import { Linking, StyleSheet, Text, TouchableOpacity, View,Image, RefreshControl } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { NavigationContainer, useNavigation } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-
+import auth from '@react-native-firebase/auth';
 import HeaderHome from '../components/Home/HeaderHome';
 import Index from '../components/Home/Index'; 
 import Entypo from "react-native-vector-icons/Entypo"
 import AntDesign from "react-native-vector-icons/AntDesign"
+import firestore from "@react-native-firebase/firestore"
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -22,6 +23,8 @@ import Help from './Help';
 import ViewCourseSubCategory from './ViewCourseSubCategory';
 
 import GetCourseScreen from './GetCourseScreen';
+import Instruction from './Instruction';
+import TestScreen from './TestScreen';
   
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -30,10 +33,41 @@ function CustomDrawerContent(props) {
   const[active,setActive] = useState(false);
   const progress = useDrawerProgress();
   const navigation = useNavigation();
+  
+  const [isCurrentLogged,setIsCurrentLogged] = useState({})
   const translateX = Animated.interpolateNode(progress, {
     inputRange: [0, 1],
     outputRange: [-100, 0],
   });
+  const handleDark =() => {
+    
+    props.isDark();
+    
+  }
+  const handleLogout = () => {
+    auth()
+    .signOut()
+    .then(() => console.log('User signed out!'));
+}
+const getCurrentUser = () =>{
+  const user = auth().currentUser;
+  
+  const data = firestore().collection("students").where("userId", "==" , user.uid).limit(1).onSnapshot(
+      snapshot => snapshot.docs.map(doc => {
+        setIsCurrentLogged({
+          fullname :doc.data().fullName,
+          dp :doc.data().profilePicture
+        })
+        
+      })
+    )
+  return data;
+}
+console.log(isCurrentLogged);
+
+useEffect(()=>{
+  getCurrentUser()
+},[])
 
   return (
     <DrawerContentScrollView {...props}>
@@ -41,19 +75,19 @@ function CustomDrawerContent(props) {
       <Animated.View style={{ transform: [{ translateX }]  }}>
       <View>
         <View style={{justifyContent:"center",marginLeft:80,marginTop:20}}>
-          <Avatar imageUrl = 'https://reactnavigation.org/img/spiro.svg'
+          <Avatar imageUrl = {isCurrentLogged.dp}
               size="small"
               borderColor = "#f2f2f2" shadow/>
           {/* <Image source={{uri: "https://reactnavigation.org/img/spiro.svg"}} style={{height:60,width:60,borderRadius:100}}/> */}
         </View>
-            <Text style={{textAlign:"center",fontWeight:"600",color:"red",fontSize:19}}>Aaditya kumar</Text>
+            <Text style={{textAlign:"center",fontWeight:"600",color:"red",fontSize:19}}>{isCurrentLogged.fullname}</Text>
      </View>
         <DrawerItemList {...props} />
         
         <DrawerItem label="My Exams"  style={{marginBottom:0,padding:0}} onPress={() => navigation.navigate("MyExam")} />
-        <DrawerItem label="My Profile" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+        <DrawerItem label="My Profile" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')}/>
         <DrawerItem label="Offline Test" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
-        <DrawerItem label="Share and Earn $0.4" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+        <DrawerItem label="Share and Earn $0.4" style={{marginBottom:0,padding:0}} onPress={() => setIsDark(!isDark)} />
         <DrawerItem label={() => <Text style={{ color:(active)?"black":"white" ,fontWeight:"600" }}>Follow Us</Text>}  style={{marginBottom:0,padding:0,backgroundColor:(active)?"#f0ffff":"grey"}} onPress={() => setActive(!active)} />
          {
           active && 
@@ -62,7 +96,8 @@ function CustomDrawerContent(props) {
             <DrawerItem label="Youtube" style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
           </View>
          }
-        <DrawerItem label="Logout "  style={{marginBottom:0,padding:0}} onPress={() => Linking.openURL('https://codewithsadiq.com/')} />
+        <DrawerItem label="Logout "  style={{marginBottom:0,padding:0}} onPress={() => handleLogout()} />
+        <DrawerItem label="Dark Mode" style={{marginBottom:0,padding:0}} onPress={() => handleDark()} />
     </Animated.View>
     </DrawerContentScrollView>
   );
@@ -78,19 +113,14 @@ const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 }
   
-function DrawerScreen(){
+function DrawerScreen(props){
   // function refreshPage() {
   //   window.location.reload(false);
   // }
-  const [refreshing, setRefreshing] = React.useState(false);
-
-  const onRefresh = React.useCallback(() => {
-    console.log("Hello2");
-    setRefreshing(true);
-    wait(2000).then(() => setRefreshing(false));
-  }, []);
-
-  
+  const handleDark = () =>{
+    props.isDark()
+  }
+  const darkMode = props.darkMode
   const navigation=useNavigation();
       return(
         <Drawer.Navigator screenOptions={{headerTintColor:"red",drawerStyle:{
@@ -102,33 +132,51 @@ function DrawerScreen(){
           
         }}
         useLegacyImplementation
-        drawerContent={(props) => <CustomDrawerContent {...props}   />}
+        drawerContent={(props) => <CustomDrawerContent {...props} isDark={handleDark}  />}
         
         >
-           <Drawer.Screen component={HomeScreen} name='Home'  options={{headerTitle:(props) => <HeaderHome navigation={() => <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}/>}}/>
+           <Drawer.Screen name='Home'  options={{headerTitle:(props) => <HeaderHome navigation={navigation} {...props} darkMode={darkMode}/>,headerStyle:{
+            backgroundColor:(darkMode)?"black":"white"
+           }}}>
+            {(props) => <HomeScreen {...props} darkMode={darkMode}/>}
+           </Drawer.Screen>
           
         </Drawer.Navigator>
       )
 }
 
-function  DrawerContext() {
+function  DrawerContext(props) {
+  const handleDark =() => {
+    props.isDark()
+  }
   return(
-    <DrawerScreen/>
+    <DrawerScreen isDark={handleDark} darkMode={props.darkMode}/>
   )
 }
 const DrawerScreenControl = () => {
+  const [isDark,setIsDark] = useState(false);
+  const handleDark = () => {
+    setIsDark(!isDark);
+  }
+  // console.log(isDark);
   return (
     <NavigationContainer>
         <Stack.Navigator>
-            <Stack.Screen name='root' component={DrawerContext} options={{headerShown:false}} />
-            <Stack.Screen name='MyExam' component={MyExamScreen} options={{headerShown:false}} />
+            <Stack.Screen name='root'  options={{headerShown:false}} >
+              {(props) => <DrawerContext {...props} isDark={() => handleDark()} darkMode={isDark}/>}
+            </Stack.Screen>
+            <Stack.Screen name='MyExam'  options={{headerShown:false}}>
+              {(props) => (<MyExamScreen {...props}/>)}
+            </Stack.Screen>
             <Stack.Screen name='Help' component={Help} options={{headerShown:false}} />
             <Stack.Screen name='ViewCourse' component={ViewCourseSubCategory} options={{headerShown:false}} />
             <Stack.Screen name='GetCourseScreen' component={GetCourseScreen} options={{headerShown:false}} />
+            <Stack.Screen name='TestScreen' component={TestScreen} options={{headerShown:false}} />
+            <Stack.Screen name='Instruction' component={Instruction}  />
         </Stack.Navigator>
     </NavigationContainer>
   )
-}
+} 
 
 export default DrawerScreenControl
 

@@ -47,7 +47,7 @@ const GetCourseScreen = ({navigation,route}) => {
  
             if(data.description === item.testSubCategory[x].description){
               return (
-                <TouchableOpacity key={index} style={{marginLeft:8,marginTop:9}}>
+                <TouchableOpacity key={index} style={{marginLeft:8,marginTop:9}} onPress={() => navigation.navigate('Instruction',{data:item})}>
                     <GetCourseCart value={item} x={x} data={data}/>
                 </TouchableOpacity>
               )

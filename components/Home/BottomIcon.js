@@ -6,10 +6,10 @@ import Feather from "react-native-vector-icons/Feather"
 import Ionicons from "react-native-vector-icons/Ionicons"
 import { TouchableOpacity } from 'react-native'
 import { useState } from 'react'
-const BottomIcon = ({navigation,icon_name}) => {
+const BottomIcon = ({navigation,icon_name,darkMode}) => {
     const[name,setName] = useState(icon_name);
   return (
-    <View style={{justifyContent:"space-between",flexDirection:"row",padding:10,backgroundColor:"white"}}>
+    <View style={{justifyContent:"space-between",flexDirection:"row",padding:10,backgroundColor:(darkMode)?"black":"white"}}>
         <TouchableOpacity style={{justifyContent:"center",alignItems:"center",flexDirection:"row",backgroundColor:(name==="Home")?"#ffebee":"white",borderRadius:17,paddingHorizontal:15,paddingVertical:9}} onPress={() => navigation.navigate("Home")}>
             <SimpleLineIcons name='home' size={20} color={(name === "Home")?"red":"black"} /> 
             {(name === "Home") && <Text style={{textAlign:"center",fontSize:14,marginLeft:6,fontWeight:"600",marginTop:2,color:"red"}}>Home</Text>}

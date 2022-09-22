@@ -11,6 +11,14 @@ const courseCategory = [
             title:"Railway Alp",
             description:"This is very import Category"
         },
+        {
+            title:"Bihar police",
+            description:"This is very import Category"
+        },
+        {
+            title:"Railway Alp",
+            description:"This is very import Category"
+        },
 ]
 
 export default courseCategory;

@@ -49,10 +49,12 @@ const test = [
                 description:"This is very import Category"
             },
         ],
-        description:"15-09-2022",
+        description:"10-09-2022",
         noOfquestion:15,
         marks:25,
         time:7,
+        negativeMarks:0,
+        positiveMarks:1
     },
     {
         testSubCategory:[
@@ -105,6 +107,8 @@ const test = [
         noOfquestion:15,
         marks:25,
         time:7,
+        negativeMarks:0,
+        positiveMarks:1
     },
     {
         testSubCategory:[
@@ -153,10 +157,12 @@ const test = [
                 description:"This is very import Category"
             },
         ],
-        description:"15-09-2022",
+        description:"17-09-2022",
         noOfquestion:15,
         marks:25,
         time:7,
+        negativeMarks:0,
+        positiveMarks:1
     },
     
 ]

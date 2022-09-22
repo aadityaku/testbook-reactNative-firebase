@@ -1,8 +1,12 @@
 import { StyleSheet, Text, View,Image, TouchableOpacity } from 'react-native'
 import React from 'react'
+
+
 import  MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 const logo= "https://th.bing.com/th/id/OIP.LeVAalXAjaiTlFjmVSVHnQHaE8?pid=ImgDet&rs=1"
-const HeaderHome = ({navigation}) => {
+const HeaderHome = (props) => {
+  // console.log(props.darkMode);
+  
   return (
     <View style={{justifyContent:"space-between",alignItems:"center",flexDirection:"row"}}>
        <View style={{flexDirection:"row"}}>
@@ -13,7 +17,7 @@ const HeaderHome = ({navigation}) => {
             <TouchableOpacity>
                 <MaterialCommunityIcons name='qrcode-scan' size={23} color="red" />
             </TouchableOpacity>
-            <TouchableOpacity style={{marginLeft:24}} onPress={() => navigation()}>
+            <TouchableOpacity style={{marginLeft:24}} onPress={() => props.navigation.navigate('MyExam')}>
                 <MaterialCommunityIcons name='refresh' size={25}  color="red" />
             </TouchableOpacity>
         </View>
